@@ -9,7 +9,7 @@ import (
 type Point struct {
 	base  geometry.Point
 	extra *extra
-	rules []Rule
+	rules []*Rule
 }
 
 // NewPoint ...
@@ -30,10 +30,10 @@ func (g *Point) ForEach(iter func(geom Object) bool) bool {
 	return iter(g)
 }
 
-// WalkRule ...
-func (g *Point) ForEachRule(iter func(rule Rule) bool) bool {
+// ForEachRule ...
+func (g *Point) ForEachRule(iter func(rule *Rule) bool) bool {
 	if len(g.rules) == 0 {
-		return false
+		return true
 	}
 	for i := 0; i < len(g.rules); i++ {
 		if ok := iter(g.rules[i]); !ok {

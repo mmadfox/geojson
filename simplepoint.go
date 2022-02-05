@@ -5,7 +5,7 @@ import "github.com/tidwall/geojson/geometry"
 // SimplePoint ...
 type SimplePoint struct {
 	geometry.Point
-	rules []Rule
+	rules []*Rule
 }
 
 // NewSimplePoint returns a new SimplePoint object.
@@ -18,10 +18,10 @@ func (g *SimplePoint) ForEach(iter func(geom Object) bool) bool {
 	return iter(g)
 }
 
-// WalkRule ...
-func (g *SimplePoint) ForEachRule(iter func(rule Rule) bool) bool {
+// ForEachRule ...
+func (g *SimplePoint) ForEachRule(iter func(rule *Rule) bool) bool {
 	if len(g.rules) == 0 {
-		return false
+		return true
 	}
 	for i := 0; i < len(g.rules); i++ {
 		if ok := iter(g.rules[i]); !ok {

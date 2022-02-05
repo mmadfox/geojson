@@ -11,7 +11,7 @@ type collection struct {
 	tree     *rtree.RTree
 	prect    geometry.Rect
 	pempty   bool
-	rules    []Rule
+	rules    []*Rule
 }
 
 func (g *collection) Indexed() bool {
@@ -32,10 +32,10 @@ func (g *collection) ForEach(iter func(geom Object) bool) bool {
 	return true
 }
 
-// WalkRule ...
-func (g *collection) ForEachRule(iter func(rule Rule) bool) bool {
+// ForEachRule ...
+func (g *collection) ForEachRule(iter func(rule *Rule) bool) bool {
 	if len(g.rules) == 0 {
-		return false
+		return true
 	}
 	for i := 0; i < len(g.rules); i++ {
 		if ok := iter(g.rules[i]); !ok {

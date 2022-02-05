@@ -17,7 +17,7 @@ type Circle struct {
 	steps     int
 	km        bool
 	extra     *extra
-	rules     []Rule
+	rules     []*Rule
 }
 
 // NewCircle returns an circle object
@@ -156,10 +156,10 @@ func (g *Circle) ForEach(iter func(geom Object) bool) bool {
 	return iter(g)
 }
 
-// WalkRule ...
-func (g *Circle) ForEachRule(iter func(rule Rule) bool) bool {
+// ForEachRule ...
+func (g *Circle) ForEachRule(iter func(rule *Rule) bool) bool {
 	if len(g.rules) == 0 {
-		return false
+		return true
 	}
 	for i := 0; i < len(g.rules); i++ {
 		if ok := iter(g.rules[i]); !ok {

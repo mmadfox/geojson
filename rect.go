@@ -7,7 +7,7 @@ import (
 // Rect ...
 type Rect struct {
 	base  geometry.Rect
-	rules []Rule
+	rules []*Rule
 }
 
 // NewRect ...
@@ -20,10 +20,10 @@ func (g *Rect) ForEach(iter func(geom Object) bool) bool {
 	return iter(g)
 }
 
-// WalkRule ...
-func (g *Rect) ForEachRule(iter func(rule Rule) bool) bool {
+// ForEachRule ...
+func (g *Rect) ForEachRule(iter func(rule *Rule) bool) bool {
 	if len(g.rules) == 0 {
-		return false
+		return true
 	}
 	for i := 0; i < len(g.rules); i++ {
 		if ok := iter(g.rules[i]); !ok {

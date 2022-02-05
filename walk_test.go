@@ -16,12 +16,12 @@ func TestWalkRuleFeatureCollection(t *testing.T) {
 
 	g, _ := Parse(json, nil)
 	names := make([]string, 0)
-	WalkRule(g, geometry.Rect{}, func(rule Rule) bool {
-		names = append(names, rule.Name)
+	WalkRule(g, geometry.Rect{}, func(rule *Rule, o Object) bool {
+		names = append(names, rule.Name())
 		return true
 	})
 
-	if have, want := strings.Join(names, ""), "01234"; have != want {
+	if have, want := strings.Join(names, ""), "01020304"; have != want {
 		t.Fatalf("have %s, want %s", have, want)
 	}
 }
@@ -31,12 +31,30 @@ func TestWalkRuleFeature(t *testing.T) {
 
 	g, _ := Parse(json, nil)
 	names := make([]string, 0)
-	WalkRule(g, geometry.Rect{}, func(rule Rule) bool {
-		names = append(names, rule.Name)
+	WalkRule(g, geometry.Rect{}, func(rule *Rule, o Object) bool {
+		names = append(names, rule.Name())
 		return true
 	})
 
 	if have, want := strings.Join(names, ""), "0"; have != want {
+		t.Fatalf("have %s, want %s", have, want)
+	}
+}
+
+func TestWalkRuleMultiLineString(t *testing.T) {
+	json := `{"type":"MultiLineString","rules": [{"id": "id", "name": "name", "spec":"spec"}],"coordinates":[
+		[[10,10],[120,190]],
+		[[50,50],[100,100]]
+	]}`
+
+	g, _ := Parse(json, nil)
+	names := make([]string, 0)
+	WalkRule(g, geometry.Rect{}, func(rule *Rule, o Object) bool {
+		names = append(names, rule.Name())
+		return true
+	})
+
+	if have, want := strings.Join(names, ""), "namename"; have != want {
 		t.Fatalf("have %s, want %s", have, want)
 	}
 }

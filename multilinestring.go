@@ -35,7 +35,6 @@ func (g *MultiLineString) AppendJSON(dst []byte) []byte {
 	dst = appendJSONRules(dst, g.rules)
 	dst = append(dst, '}')
 	return dst
-
 }
 
 // String ...

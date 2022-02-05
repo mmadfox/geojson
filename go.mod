@@ -1,4 +1,4 @@
-module github.com/mmadfox/geojson
+module github.com/tidwall/geojson
 
 go 1.15
 

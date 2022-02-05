@@ -13,7 +13,7 @@ import (
 type Feature struct {
 	base  Object
 	extra *extra
-	rules []Rule
+	rules []*Rule
 }
 
 // NewFeature returns a new GeoJSON Feature.
@@ -41,10 +41,10 @@ func (g *Feature) ForEach(iter func(geom Object) bool) bool {
 	return iter(g)
 }
 
-// WalkRule ...
-func (g *Feature) ForEachRule(iter func(rule Rule) bool) bool {
+// ForEachRule ...
+func (g *Feature) ForEachRule(iter func(rule *Rule) bool) bool {
 	if len(g.rules) == 0 {
-		return false
+		return true
 	}
 	for i := 0; i < len(g.rules); i++ {
 		if ok := iter(g.rules[i]); !ok {

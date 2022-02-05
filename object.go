@@ -43,7 +43,7 @@ type Object interface {
 	Distance(obj Object) float64
 	NumPoints() int
 	ForEach(iter func(geom Object) bool) bool
-	ForEachRule(iter func(rule Rule) bool) bool
+	ForEachRule(iter func(rule *Rule) bool) bool
 	Spatial() Spatial
 	MarshalJSON() ([]byte, error)
 }
@@ -69,9 +69,21 @@ var _ = []Collection{
 
 // Rule ...
 type Rule struct {
-	ID   string
-	Name string
-	Spec string
+	id   string
+	name string
+	spec string
+}
+
+func (r Rule) ID() string {
+	return r.id
+}
+
+func (r Rule) Name() string {
+	return r.name
+}
+
+func (r Rule) Spec() string {
+	return r.spec
 }
 
 type extra struct {
@@ -255,11 +267,11 @@ func parseBBoxAndExtras(ex **extra, keys *parseKeys, opts *ParseOptions) error {
 	return nil
 }
 
-func parseRules(keys *parseKeys) (rules []Rule, err error) {
+func parseRules(keys *parseKeys) (rules []*Rule, err error) {
 	if !keys.rules.Exists() {
 		return nil, nil
 	}
-	rules = make([]Rule, 0)
+	rules = make([]*Rule, 0)
 	keys.rules.ForEach(func(key, value gjson.Result) bool {
 		if value.Type != gjson.JSON {
 			err = errRulesInvalid
@@ -273,11 +285,11 @@ func parseRules(keys *parseKeys) (rules []Rule, err error) {
 			}
 			switch key.Str {
 			case "id":
-				rule.ID = value.Str
+				rule.id = value.Str
 			case "name":
-				rule.Name = value.Str
+				rule.name = value.Str
 			case "spec":
-				rule.Spec = value.Str
+				rule.spec = value.Str
 			default:
 				err = errRulesInvalid
 				return false
@@ -287,15 +299,15 @@ func parseRules(keys *parseKeys) (rules []Rule, err error) {
 		if err != nil {
 			return false
 		}
-		if len(rule.Spec) == 0 {
+		if len(rule.spec) == 0 {
 			err = errRulesInvalid
 			return false
 		}
-		if len(rule.ID) == 0 {
+		if len(rule.id) == 0 {
 			err = errRuleIDInvalid
 			return false
 		}
-		rules = append(rules, rule)
+		rules = append(rules, &rule)
 		return true
 	})
 	return rules, err
@@ -319,7 +331,7 @@ func appendJSONPoint(dst []byte, point geometry.Point, ex *extra, idx int) []byt
 	return dst
 }
 
-func appendJSONRules(dst []byte, rules []Rule) []byte {
+func appendJSONRules(dst []byte, rules []*Rule) []byte {
 	if len(rules) == 0 {
 		return dst
 	}
@@ -328,13 +340,13 @@ func appendJSONRules(dst []byte, rules []Rule) []byte {
 	for i := 0; i < len(rules); i++ {
 		dst = append(dst, '{')
 		dst = append(dst, `"id":"`...)
-		dst = append(dst, rules[i].ID...)
+		dst = append(dst, rules[i].id...)
 		dst = append(dst, `"`...)
 		dst = append(dst, `,"name":"`...)
-		dst = append(dst, rules[i].Name...)
+		dst = append(dst, rules[i].name...)
 		dst = append(dst, `"`...)
 		dst = append(dst, `,"spec":"`...)
-		dst = append(dst, rules[i].Spec...)
+		dst = append(dst, rules[i].spec...)
 		dst = append(dst, `"`...)
 		dst = append(dst, '}')
 		if i < len(rules)-1 {

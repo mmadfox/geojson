@@ -9,7 +9,7 @@ import (
 type Polygon struct {
 	base  geometry.Poly
 	extra *extra
-	rules []Rule
+	rules []*Rule
 }
 
 // NewPolygon ...
@@ -85,10 +85,10 @@ func (g *Polygon) ForEach(iter func(geom Object) bool) bool {
 	return iter(g)
 }
 
-// WalkRule ...
-func (g *Polygon) ForEachRule(iter func(rule Rule) bool) bool {
+// ForEachRule ...
+func (g *Polygon) ForEachRule(iter func(rule *Rule) bool) bool {
 	if len(g.rules) == 0 {
-		return false
+		return true
 	}
 	for i := 0; i < len(g.rules); i++ {
 		if ok := iter(g.rules[i]); !ok {
