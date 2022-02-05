@@ -17,6 +17,8 @@ func TestFeatureParse(t *testing.T) {
 	expectJSON(t, `{"type":"Feature","geometry":{"type":"Point","coordinates":[1,2]},"id":"15","properties":{"a":"b"}}`, nil)
 	expectJSON(t, `{"type":"Feature","geometry":{"type":"Point","coordinates":[1,2,3]},"bbox":[1,2,3,4],"properties":{}}`, nil)
 	expectJSON(t, `{"type":"Feature","geometry":{"type":"Point","coordinates":[1,2],"bbox":[1,2,3,4]},"id":[4,true],"properties":{}}`, nil)
+	json := `{"type":"Feature","rules":[{"id": "id", "name": "name", "spec":"spec"}],"geometry":{"type":"Point","coordinates":[1,2],"bbox":[1,2,3,4]},"id":[4,true],"properties":{}}`
+	expectJSON(t, json, json)
 }
 
 func TestFeatureVarious(t *testing.T) {

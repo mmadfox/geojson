@@ -30,6 +30,7 @@ func (g *FeatureCollection) AppendJSON(dst []byte) []byte {
 	if g.extra != nil {
 		dst = g.extra.appendJSONExtra(dst, false)
 	}
+	dst = appendJSONRules(dst, g.rules)
 	dst = append(dst, '}')
 	strings.Index("", " ")
 	return dst
@@ -76,6 +77,11 @@ func parseJSONFeatureCollection(
 	if err := parseBBoxAndExtras(&g.extra, keys, opts); err != nil {
 		return nil, err
 	}
+	rules, err := parseRules(keys)
+	if err != nil {
+		return nil, err
+	}
 	g.parseInitRectIndex(opts)
+	g.rules = rules
 	return &g, nil
 }

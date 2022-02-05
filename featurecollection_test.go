@@ -22,8 +22,8 @@ func TestFeatureCollectionPoly(t *testing.T) {
 }
 
 func TestFeatureCollectionValid(t *testing.T) {
-	json := `{"type":"FeatureCollection","features":[{"type":"Point","coordinates":[1,200]}]}`
-	expectJSON(t, json, nil)
+	json := `{"type":"FeatureCollection","rules":[{"id": "id", "name": "name", "spec":"spec"}],"features":[{"type":"Point","coordinates":[1,200]}]}`
+	expectJSON(t, json, json)
 	expectJSONOpts(t, json, errCoordinatesInvalid, &ParseOptions{RequireValid: true})
 }
 

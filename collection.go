@@ -11,6 +11,7 @@ type collection struct {
 	tree     *rtree.RTree
 	prect    geometry.Rect
 	pempty   bool
+	rules    []Rule
 }
 
 func (g *collection) Indexed() bool {
@@ -25,6 +26,19 @@ func (g *collection) Children() []Object {
 func (g *collection) ForEach(iter func(geom Object) bool) bool {
 	for _, child := range g.children {
 		if !child.ForEach(iter) {
+			return false
+		}
+	}
+	return true
+}
+
+// WalkRule ...
+func (g *collection) ForEachRule(iter func(rule Rule) bool) bool {
+	if len(g.rules) == 0 {
+		return false
+	}
+	for i := 0; i < len(g.rules); i++ {
+		if ok := iter(g.rules[i]); !ok {
 			return false
 		}
 	}

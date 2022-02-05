@@ -10,6 +10,7 @@ func TestMultiPoint(t *testing.T) {
 	expectJSON(t, `{"type":"MultiPoint"}`, errCoordinatesMissing)
 	expectJSON(t, `{"type":"MultiPoint","coordinates":null}`, errCoordinatesInvalid)
 	expectJSON(t, `{"type":"MultiPoint","coordinates":[[1,2,3],[4,5,6]],"bbox":[1,2,3,4]}`, nil)
+	expectJSON(t, `{"type":"MultiPoint","rules": [{"id": "id", "name": "name", "spec":"spec"}],"coordinates":[[1,2,3],[4,5,6]],"bbox":[1,2,3,4]}`, `{"type":"MultiPoint","rules": [{"id": "id", "name": "name", "spec":"spec"}],"coordinates":[[1,2,3],[4,5,6]],"bbox":[1,2,3,4]}`)
 }
 
 // func TestMultiPointPoly(t *testing.T) {

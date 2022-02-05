@@ -3,12 +3,11 @@ package geojson
 import (
 	"errors"
 	"fmt"
-	"strconv"
-
 	"github.com/tidwall/geojson/geo"
 	"github.com/tidwall/geojson/geometry"
 	"github.com/tidwall/gjson"
 	"github.com/tidwall/pretty"
+	"strconv"
 )
 
 var (
@@ -17,6 +16,8 @@ var (
 	errTypeInvalid              = errors.New("invalid type")
 	errTypeMissing              = errors.New("missing type")
 	errCoordinatesInvalid       = errors.New("invalid coordinates")
+	errRulesInvalid             = errors.New("invalid rules")
+	errRuleIDInvalid            = errors.New("invalid rule id")
 	errCoordinatesMissing       = errors.New("missing coordinates")
 	errGeometryInvalid          = errors.New("invalid geometry")
 	errGeometryMissing          = errors.New("missing geometry")
@@ -42,6 +43,7 @@ type Object interface {
 	Distance(obj Object) float64
 	NumPoints() int
 	ForEach(iter func(geom Object) bool) bool
+	ForEachRule(iter func(rule Rule) bool) bool
 	Spatial() Spatial
 	MarshalJSON() ([]byte, error)
 }
@@ -63,6 +65,13 @@ type Collection interface {
 var _ = []Collection{
 	&MultiPoint{}, &MultiLineString{}, &MultiPolygon{},
 	&FeatureCollection{}, &GeometryCollection{},
+}
+
+// Rule ...
+type Rule struct {
+	ID   string
+	Name string
+	Spec string
 }
 
 type extra struct {
@@ -165,6 +174,7 @@ type parseKeys struct {
 	rGeometry    gjson.Result
 	rFeatures    gjson.Result
 	members      string // a valid payload with all extra members
+	rules        gjson.Result
 }
 
 func parseJSON(data string, opts *ParseOptions) (Object, error) {
@@ -186,6 +196,8 @@ func parseJSON(data string, opts *ParseOptions) (Object, error) {
 			keys.rGeometry = val
 		case "features":
 			keys.rFeatures = val
+		case "rules":
+			keys.rules = val
 		default:
 			if len(fmembers) == 0 {
 				fmembers = append(fmembers, '{')
@@ -243,6 +255,52 @@ func parseBBoxAndExtras(ex **extra, keys *parseKeys, opts *ParseOptions) error {
 	return nil
 }
 
+func parseRules(keys *parseKeys) (rules []Rule, err error) {
+	if !keys.rules.Exists() {
+		return nil, nil
+	}
+	rules = make([]Rule, 0)
+	keys.rules.ForEach(func(key, value gjson.Result) bool {
+		if value.Type != gjson.JSON {
+			err = errRulesInvalid
+			return false
+		}
+		var rule Rule
+		value.ForEach(func(key, value gjson.Result) bool {
+			if !value.Exists() {
+				err = errRulesInvalid
+				return false
+			}
+			switch key.Str {
+			case "id":
+				rule.ID = value.Str
+			case "name":
+				rule.Name = value.Str
+			case "spec":
+				rule.Spec = value.Str
+			default:
+				err = errRulesInvalid
+				return false
+			}
+			return true
+		})
+		if err != nil {
+			return false
+		}
+		if len(rule.Spec) == 0 {
+			err = errRulesInvalid
+			return false
+		}
+		if len(rule.ID) == 0 {
+			err = errRuleIDInvalid
+			return false
+		}
+		rules = append(rules, rule)
+		return true
+	})
+	return rules, err
+}
+
 func appendJSONPoint(dst []byte, point geometry.Point, ex *extra, idx int) []byte {
 	dst = append(dst, '[')
 	dst = strconv.AppendFloat(dst, point.X, 'f', -1, 64)
@@ -255,6 +313,32 @@ func appendJSONPoint(dst []byte, point geometry.Point, ex *extra, idx int) []byt
 			dst = strconv.AppendFloat(
 				dst, ex.values[idx*dims+i], 'f', -1, 64,
 			)
+		}
+	}
+	dst = append(dst, ']')
+	return dst
+}
+
+func appendJSONRules(dst []byte, rules []Rule) []byte {
+	if len(rules) == 0 {
+		return dst
+	}
+	dst = append(dst, `,"rules":`...)
+	dst = append(dst, '[')
+	for i := 0; i < len(rules); i++ {
+		dst = append(dst, '{')
+		dst = append(dst, `"id":"`...)
+		dst = append(dst, rules[i].ID...)
+		dst = append(dst, `"`...)
+		dst = append(dst, `,"name":"`...)
+		dst = append(dst, rules[i].Name...)
+		dst = append(dst, `"`...)
+		dst = append(dst, `,"spec":"`...)
+		dst = append(dst, rules[i].Spec...)
+		dst = append(dst, `"`...)
+		dst = append(dst, '}')
+		if i < len(rules)-1 {
+			dst = append(dst, ',')
 		}
 	}
 	dst = append(dst, ']')

@@ -11,11 +11,11 @@ func TestMultiLineString(t *testing.T) {
 }
 
 func TestMultiLineStringValid(t *testing.T) {
-	json := `{"type":"MultiLineString","coordinates":[
+	json := `{"type":"MultiLineString","rules": [{"id": "id", "name": "name", "spec":"spec"}],"coordinates":[
 		[[10,10],[120,190]],
 		[[50,50],[100,100]]
 	]}`
-	expectJSON(t, json, nil)
+	expectJSON(t, json, json)
 	expectJSONOpts(t, json, errCoordinatesInvalid, &ParseOptions{RequireValid: true})
 }
 

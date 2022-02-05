@@ -13,6 +13,7 @@ import (
 type Feature struct {
 	base  Object
 	extra *extra
+	rules []Rule
 }
 
 // NewFeature returns a new GeoJSON Feature.
@@ -38,6 +39,19 @@ func NewFeature(geometry Object, members string) *Feature {
 // ForEach ...
 func (g *Feature) ForEach(iter func(geom Object) bool) bool {
 	return iter(g)
+}
+
+// WalkRule ...
+func (g *Feature) ForEachRule(iter func(rule Rule) bool) bool {
+	if len(g.rules) == 0 {
+		return false
+	}
+	for i := 0; i < len(g.rules); i++ {
+		if ok := iter(g.rules[i]); !ok {
+			return false
+		}
+	}
+	return true
 }
 
 // Empty ...
@@ -78,6 +92,7 @@ func (g *Feature) AppendJSON(dst []byte) []byte {
 	dst = append(dst, `{"type":"Feature","geometry":`...)
 	dst = g.base.AppendJSON(dst)
 	dst = g.extra.appendJSONExtra(dst, true)
+	dst = appendJSONRules(dst, g.rules)
 	dst = append(dst, '}')
 	return dst
 
@@ -177,6 +192,11 @@ func parseJSONFeature(keys *parseKeys, opts *ParseOptions) (Object, error) {
 	if err := parseBBoxAndExtras(&g.extra, keys, opts); err != nil {
 		return nil, err
 	}
+	rules, err := parseRules(keys)
+	if err != nil {
+		return nil, err
+	}
+	g.rules = rules
 	if point, ok := g.base.(*Point); ok {
 		if g.extra != nil {
 			members := g.extra.members

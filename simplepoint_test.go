@@ -12,6 +12,7 @@ func TestSimplePointNotSimple(t *testing.T) {
 	expectJSONOpts(t, `{"type":"Point","coordinates":[1,2,3,4,5]}`, `{"type":"Point","coordinates":[1,2,3,4]}`, &ParseOptions{AllowSimplePoints: true})
 	expectJSONOpts(t, `{"type":"Point","coordinates":[1]}`, errCoordinatesInvalid, &ParseOptions{AllowSimplePoints: true})
 	expectJSONOpts(t, `{"type":"Point","coordinates":[1,2,3],"bbox":[1,2,3,4]}`, `{"type":"Point","coordinates":[1,2,3],"bbox":[1,2,3,4]}`, &ParseOptions{AllowSimplePoints: true})
+	expectJSONOpts(t, `{"type":"Point", "rules": [{"id":"id", "name":"name", "spec":"spec"}], "coordinates":[1,2,3],"bbox":[1,2,3,4]}`, `{"type":"Point","rules":[{"id":"id","name":"name","spec":"spec"}],"coordinates":[1,2,3],"bbox":[1,2,3,4]}`, &ParseOptions{AllowSimplePoints: true})
 }
 
 func TestSimplePointParseValid(t *testing.T) {
