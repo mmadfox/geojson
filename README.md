@@ -1,8 +1,6 @@
 # GeoJSON
 
-[![GoDoc](https://godoc.org/github.com/tidwall/geojson?status.svg)](https://godoc.org/github.com/tidwall/geojson)
-
-This package provides GeoJSON utilties for Go. It's designed for [Tile38](https://github.com/tidwall/tile38).
+This package provides GeoJSON utilties for Go
 
 ## License
 
