@@ -1,6 +1,6 @@
 package geojson
 
-import "github.com/tidwall/geojson/geometry"
+import "github.com/mmadfox/geojson/geometry"
 
 // Spatial ...
 type Spatial interface {

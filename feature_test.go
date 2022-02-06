@@ -3,7 +3,7 @@ package geojson
 import (
 	"testing"
 
-	"github.com/tidwall/geojson/geometry"
+	"github.com/mmadfox/geojson/geometry"
 	"github.com/tidwall/gjson"
 )
 

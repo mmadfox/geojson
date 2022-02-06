@@ -1,7 +1,7 @@
 package geojson
 
 import (
-	"github.com/tidwall/geojson/geometry"
+	"github.com/mmadfox/geojson/geometry"
 )
 
 // Rect ...

@@ -3,8 +3,8 @@ package geojson
 import (
 	"errors"
 	"fmt"
-	"github.com/tidwall/geojson/geo"
-	"github.com/tidwall/geojson/geometry"
+	"github.com/mmadfox/geojson/geo"
+	"github.com/mmadfox/geojson/geometry"
 	"github.com/tidwall/gjson"
 	"github.com/tidwall/pretty"
 	"strconv"

@@ -4,7 +4,7 @@ import (
 	"math/rand"
 	"testing"
 
-	"github.com/tidwall/geojson/geometry"
+	"github.com/mmadfox/geojson/geometry"
 )
 
 func TestRect(t *testing.T) {

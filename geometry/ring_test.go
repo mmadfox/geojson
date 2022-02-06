@@ -1387,7 +1387,7 @@ func TestRingXIntersectsLine(t *testing.T) {
 }
 
 func TestIssue14(t *testing.T) {
-	// https: //github.com/tidwall/geojson/issues/14
+	// https: //github.com/mmadfox/geojson/issues/14
 	t.Run("original", func(t *testing.T) {
 		exterior := make([]Point, 5)
 		exterior[0] = Point{X: 0, Y: 0}
