@@ -9,7 +9,6 @@ import (
 type Polygon struct {
 	base  geometry.Poly
 	extra *extra
-	rules []*Rule
 }
 
 // NewPolygon ...
@@ -52,7 +51,6 @@ func (g *Polygon) AppendJSON(dst []byte) []byte {
 		dst, pidx = appendJSONSeries(dst, hole, g.extra, pidx)
 	}
 	dst = append(dst, ']')
-	dst = appendJSONRules(dst, g.rules)
 	if g.extra != nil {
 		dst = g.extra.appendJSONExtra(dst, false)
 	}
@@ -83,19 +81,6 @@ func (g *Polygon) Spatial() Spatial {
 // ForEach ...
 func (g *Polygon) ForEach(iter func(geom Object) bool) bool {
 	return iter(g)
-}
-
-// ForEachRule ...
-func (g *Polygon) ForEachRule(iter func(rule *Rule) bool) bool {
-	if len(g.rules) == 0 {
-		return true
-	}
-	for i := 0; i < len(g.rules); i++ {
-		if ok := iter(g.rules[i]); !ok {
-			return false
-		}
-	}
-	return true
 }
 
 // Within ...
@@ -185,10 +170,6 @@ func parseJSONPolygon(keys *parseKeys, opts *ParseOptions) (Object, error) {
 	if err := parseBBoxAndExtras(&extra, keys, opts); err != nil {
 		return nil, err
 	}
-	rules, err := parseRules(keys)
-	if err != nil {
-		return nil, err
-	}
 	if extra == nil && opts.AllowRects &&
 		len(holes) == 0 && len(exterior) == 5 &&
 		exterior[0].X < exterior[1].X &&
@@ -205,14 +186,12 @@ func parseJSONPolygon(keys *parseKeys, opts *ParseOptions) (Object, error) {
 				Min: exterior[0],
 				Max: exterior[2],
 			},
-			rules: rules,
 		}
 	} else {
 		g := Polygon{}
 		poly := geometry.NewPoly(exterior, holes, &gopts)
 		g.base = *poly
 		g.extra = extra
-		g.rules = rules
 		o = &g
 	}
 	if opts.RequireValid {

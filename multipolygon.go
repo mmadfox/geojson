@@ -32,7 +32,6 @@ func (g *MultiPolygon) AppendJSON(dst []byte) []byte {
 	if g.extra != nil {
 		dst = g.extra.appendJSONExtra(dst, false)
 	}
-	dst = appendJSONRules(dst, g.rules)
 	dst = append(dst, '}')
 	return dst
 }
@@ -107,16 +106,11 @@ func parseJSONMultiPolygon(
 	if err := parseBBoxAndExtras(&g.extra, keys, opts); err != nil {
 		return nil, err
 	}
-	rules, err := parseRules(keys)
-	if err != nil {
-		return nil, err
-	}
 	if opts.RequireValid {
 		if !g.Valid() {
 			return nil, errCoordinatesInvalid
 		}
 	}
 	g.parseInitRectIndex(opts)
-	g.rules = rules
 	return &g, nil
 }

@@ -9,7 +9,6 @@ import (
 type LineString struct {
 	base  geometry.Line
 	extra *extra
-	rules []*Rule
 }
 
 // NewLineString ...
@@ -49,7 +48,6 @@ func (g *LineString) AppendJSON(dst []byte) []byte {
 	if g.extra != nil {
 		dst = g.extra.appendJSONExtra(dst, false)
 	}
-	dst = appendJSONRules(dst, g.rules)
 	dst = append(dst, '}')
 	return dst
 }
@@ -77,19 +75,6 @@ func (g *LineString) Spatial() Spatial {
 // ForEach ...
 func (g *LineString) ForEach(iter func(geom Object) bool) bool {
 	return iter(g)
-}
-
-// ForEachRule ...
-func (g *LineString) ForEachRule(iter func(rule *Rule) bool) bool {
-	if len(g.rules) == 0 {
-		return true
-	}
-	for i := 0; i < len(g.rules); i++ {
-		if ok := iter(g.rules[i]); !ok {
-			return false
-		}
-	}
-	return true
 }
 
 // Within ...
@@ -170,16 +155,11 @@ func parseJSONLineString(keys *parseKeys, opts *ParseOptions) (Object, error) {
 	if err := parseBBoxAndExtras(&g.extra, keys, opts); err != nil {
 		return nil, err
 	}
-	rules, err := parseRules(keys)
-	if err != nil {
-		return nil, err
-	}
 	if opts.RequireValid {
 		if !g.Valid() {
 			return nil, errDataInvalid
 		}
 	}
-	g.rules = rules
 	return &g, nil
 }
 

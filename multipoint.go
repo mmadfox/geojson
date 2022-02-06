@@ -32,7 +32,6 @@ func (g *MultiPoint) AppendJSON(dst []byte) []byte {
 	if g.extra != nil {
 		dst = g.extra.appendJSONExtra(dst, false)
 	}
-	dst = appendJSONRules(dst, g.rules)
 	dst = append(dst, '}')
 	return dst
 }
@@ -77,11 +76,6 @@ func parseJSONMultiPoint(keys *parseKeys, opts *ParseOptions) (Object, error) {
 	if err := parseBBoxAndExtras(&g.extra, keys, opts); err != nil {
 		return nil, err
 	}
-	rules, err := parseRules(keys)
-	if err != nil {
-		return nil, err
-	}
-	g.rules = rules
 	g.parseInitRectIndex(opts)
 	return &g, nil
 }

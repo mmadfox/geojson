@@ -14,6 +14,7 @@ type Feature struct {
 	base  Object
 	extra *extra
 	rules []*Rule
+	id    string
 }
 
 // NewFeature returns a new GeoJSON Feature.
@@ -24,6 +25,9 @@ func NewFeature(geometry Object, members string) *Feature {
 	g := new(Feature)
 	g.base = geometry
 	members = strings.TrimSpace(members)
+	if gjson.Get(members, "id").Exists() {
+		g.id = gjson.Get(members, "id").String()
+	}
 	if members != "" && members != "{}" {
 		if gjson.Valid(members) && gjson.Parse(members).IsObject() {
 			if gjson.Get(members, "feature").Exists() {
@@ -118,6 +122,14 @@ func (g *Feature) Spatial() Spatial {
 	return g
 }
 
+// Lookup ...
+func (g *Feature) Lookup(id string) (Object, bool) {
+	if g.id == id {
+		return g, true
+	}
+	return g, false
+}
+
 // Within ...
 func (g *Feature) Within(obj Object) bool {
 	return obj.Contains(g)
@@ -200,6 +212,9 @@ func parseJSONFeature(keys *parseKeys, opts *ParseOptions) (Object, error) {
 	if point, ok := g.base.(*Point); ok {
 		if g.extra != nil {
 			members := g.extra.members
+			if gjson.Get(members, "id").Exists() {
+				g.id = gjson.Get(members, "id").String()
+			}
 			if !opts.DisableCircleType &&
 				gjson.Get(members, "properties.type").String() == "Circle" {
 				// Circle

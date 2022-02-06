@@ -16,7 +16,6 @@ func TestLineStringParse(t *testing.T) {
 	expect(t, g.Rect() == R(1, 2, 3, 4))
 	expectJSON(t, `{"type":"LineString","coordinates":[[3,4],[1,2]],"bbox":null}`, nil)
 	expectJSON(t, `{"type":"LineString","coordinates":[[3,4],[1,2]],"bbox":[1,2,3,4]}`, nil)
-	expectJSON(t, `{"type":"LineString", "rules": [{"id": "id", "name": "name", "spec":"spec"}], "coordinates":[[3,4],[1,2]],"bbox":[1,2,3,4]}`, `{"type":"LineString", "rules": [{"id": "id", "name": "name", "spec":"spec"}], "coordinates":[[3,4],[1,2]],"bbox":[1,2,3,4]}`)
 }
 
 func TestLineStringParseValid(t *testing.T) {

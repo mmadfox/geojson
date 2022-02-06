@@ -71,7 +71,6 @@ func TestRectPoly(t *testing.T) {
 func TestRectValid(t *testing.T) {
 	json := `{"type":"Polygon","coordinates":[[[10,200],[30,200],[30,40],[10,40],[10,200]]]}`
 	expectJSON(t, json, nil)
-	expectJSON(t, `{"type":"Polygon", "rules":[{"id":"id","name":"name","spec":"spec"}], "coordinates":[[[10,200],[30,200],[30,40],[10,40],[10,200]]]}`, `{"type":"Polygon","rules":[{"id":"id","name":"name","spec":"spec"}],"coordinates":[[[10,200],[30,200],[30,40],[10,40],[10,200]]]}`)
 	expectJSONOpts(t, json, errCoordinatesInvalid, &ParseOptions{RequireValid: true})
 }
 

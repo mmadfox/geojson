@@ -9,7 +9,6 @@ import (
 type Point struct {
 	base  geometry.Point
 	extra *extra
-	rules []*Rule
 }
 
 // NewPoint ...
@@ -28,19 +27,6 @@ func NewPointZ(point geometry.Point, z float64) *Point {
 // ForEach ...
 func (g *Point) ForEach(iter func(geom Object) bool) bool {
 	return iter(g)
-}
-
-// ForEachRule ...
-func (g *Point) ForEachRule(iter func(rule *Rule) bool) bool {
-	if len(g.rules) == 0 {
-		return true
-	}
-	for i := 0; i < len(g.rules); i++ {
-		if ok := iter(g.rules[i]); !ok {
-			return false
-		}
-	}
-	return true
 }
 
 // Empty ...
@@ -77,7 +63,6 @@ func (g *Point) Base() geometry.Point {
 func (g *Point) AppendJSON(dst []byte) []byte {
 	dst = append(dst, `{"type":"Point","coordinates":`...)
 	dst = appendJSONPoint(dst, g.base, g.extra, 0)
-	dst = appendJSONRules(dst, g.rules)
 	dst = g.extra.appendJSONExtra(dst, false)
 	dst = append(dst, '}')
 	return dst
@@ -178,20 +163,14 @@ func parseJSONPoint(keys *parseKeys, opts *ParseOptions) (Object, error) {
 	if err := parseBBoxAndExtras(&extra, keys, opts); err != nil {
 		return nil, err
 	}
-	rules, err := parseRules(keys)
-	if err != nil {
-		return nil, err
-	}
 	if extra == nil && opts.AllowSimplePoints {
 		var g SimplePoint
 		g.Point = base
-		g.rules = rules
 		o = &g
 	} else {
 		var g Point
 		g.base = base
 		g.extra = extra
-		g.rules = rules
 		o = &g
 	}
 	if opts.RequireValid {

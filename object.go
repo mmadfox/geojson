@@ -43,7 +43,6 @@ type Object interface {
 	Distance(obj Object) float64
 	NumPoints() int
 	ForEach(iter func(geom Object) bool) bool
-	ForEachRule(iter func(rule *Rule) bool) bool
 	Spatial() Spatial
 	MarshalJSON() ([]byte, error)
 }
@@ -67,25 +66,6 @@ var _ = []Collection{
 	&FeatureCollection{}, &GeometryCollection{},
 }
 
-// Rule ...
-type Rule struct {
-	id   string
-	name string
-	spec string
-}
-
-func (r Rule) ID() string {
-	return r.id
-}
-
-func (r Rule) Name() string {
-	return r.name
-}
-
-func (r Rule) Spec() string {
-	return r.spec
-}
-
 type extra struct {
 	dims   byte      // number of extra coordinate values, 1 or 2
 	values []float64 // extra coordinate values
@@ -96,18 +76,18 @@ type extra struct {
 
 // ParseOptions ...
 type ParseOptions struct {
-	// IndexChildren option will cause the object to index their children
+	// IndexChildren option will cause the object to indexByIDs their children
 	// objects when the number of children is greater than or equal to the
 	// provided value. Setting this value to 0 will disable indexing.
 	// The default is 64.
 	IndexChildren int
-	// IndexGeometry option will cause the object to index it's geometry
+	// IndexGeometry option will cause the object to indexByIDs it's geometry
 	// when the number of points in it's base polygon or linestring is greater
 	// that or equal to the provided value. Setting this value to 0 will
 	// disable indexing.
 	// The default is 64.
 	IndexGeometry int
-	// IndexGeometryKind is the kind of index implementation.
+	// IndexGeometryKind is the kind of indexByIDs implementation.
 	// Default is QuadTreeCompressed
 	IndexGeometryKind geometry.IndexKind
 	// RequireValid option cause parse to fail when a geojson object is invalid.
@@ -267,52 +247,6 @@ func parseBBoxAndExtras(ex **extra, keys *parseKeys, opts *ParseOptions) error {
 	return nil
 }
 
-func parseRules(keys *parseKeys) (rules []*Rule, err error) {
-	if !keys.rules.Exists() {
-		return nil, nil
-	}
-	rules = make([]*Rule, 0)
-	keys.rules.ForEach(func(key, value gjson.Result) bool {
-		if value.Type != gjson.JSON {
-			err = errRulesInvalid
-			return false
-		}
-		var rule Rule
-		value.ForEach(func(key, value gjson.Result) bool {
-			if !value.Exists() {
-				err = errRulesInvalid
-				return false
-			}
-			switch key.Str {
-			case "id":
-				rule.id = value.Str
-			case "name":
-				rule.name = value.Str
-			case "spec":
-				rule.spec = value.Str
-			default:
-				err = errRulesInvalid
-				return false
-			}
-			return true
-		})
-		if err != nil {
-			return false
-		}
-		if len(rule.spec) == 0 {
-			err = errRulesInvalid
-			return false
-		}
-		if len(rule.id) == 0 {
-			err = errRuleIDInvalid
-			return false
-		}
-		rules = append(rules, &rule)
-		return true
-	})
-	return rules, err
-}
-
 func appendJSONPoint(dst []byte, point geometry.Point, ex *extra, idx int) []byte {
 	dst = append(dst, '[')
 	dst = strconv.AppendFloat(dst, point.X, 'f', -1, 64)
@@ -341,9 +275,6 @@ func appendJSONRules(dst []byte, rules []*Rule) []byte {
 		dst = append(dst, '{')
 		dst = append(dst, `"id":"`...)
 		dst = append(dst, rules[i].id...)
-		dst = append(dst, `"`...)
-		dst = append(dst, `,"name":"`...)
-		dst = append(dst, rules[i].name...)
 		dst = append(dst, `"`...)
 		dst = append(dst, `,"spec":"`...)
 		dst = append(dst, rules[i].spec...)

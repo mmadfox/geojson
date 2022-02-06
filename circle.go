@@ -17,7 +17,6 @@ type Circle struct {
 	steps     int
 	km        bool
 	extra     *extra
-	rules     []*Rule
 }
 
 // NewCircle returns an circle object
@@ -39,7 +38,6 @@ func NewCircle(center geometry.Point, meters float64, steps int) *Circle {
 // AppendJSON ...
 func (g *Circle) AppendJSON(dst []byte) []byte {
 	dst = append(dst, `{"type":"Feature",`...)
-	dst = appendJSONRules(dst, g.rules)
 	dst = append(dst, `"geometry":`...)
 	dst = append(dst, `{"type":"Point","coordinates":[`...)
 	dst = strconv.AppendFloat(dst, g.center.X, 'f', -1, 64)
@@ -154,19 +152,6 @@ func (g *Circle) Valid() bool {
 // ForEach ...
 func (g *Circle) ForEach(iter func(geom Object) bool) bool {
 	return iter(g)
-}
-
-// ForEachRule ...
-func (g *Circle) ForEachRule(iter func(rule *Rule) bool) bool {
-	if len(g.rules) == 0 {
-		return true
-	}
-	for i := 0; i < len(g.rules); i++ {
-		if ok := iter(g.rules[i]); !ok {
-			return false
-		}
-	}
-	return true
 }
 
 // NumPoints ...

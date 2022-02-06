@@ -35,13 +35,6 @@ func TestPolygonParseValid(t *testing.T) {
 		[[2,2],[8,2],[8,8],[2,8],[2,2]]
 	]}`
 	expectJSON(t, json, nil)
-	expectJSON(t, `{"type":"Polygon", "rules":[{"id":"id", "name":"name","spec":"spec"}], "coordinates":[
-		[[0,0],[190,0],[10,10],[0,10],[0,0]],
-		[[2,2],[8,2],[8,8],[2,8],[2,2]]
-	]}`, `{"type":"Polygon", "rules":[{"id":"id","name":"name","spec":"spec"}], "coordinates":[
-	[[0,0],[190,0],[10,10],[0,10],[0,0]],
-	[[2,2],[8,2],[8,8],[2,8],[2,2]]
-	]}`)
 	expectJSONOpts(t, json, errCoordinatesInvalid, &ParseOptions{RequireValid: true})
 }
 

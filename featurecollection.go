@@ -7,7 +7,11 @@ import (
 )
 
 // FeatureCollection ...
-type FeatureCollection struct{ collection }
+type FeatureCollection struct {
+	collection
+	rules      []*Rule
+	indexByIDs map[string]Object
+}
 
 // NewFeatureCollection ...
 func NewFeatureCollection(features []Object) *FeatureCollection {
@@ -34,6 +38,28 @@ func (g *FeatureCollection) AppendJSON(dst []byte) []byte {
 	dst = append(dst, '}')
 	strings.Index("", " ")
 	return dst
+}
+
+// Lookup ...
+func (g *FeatureCollection) Lookup(id string) (Object, bool) {
+	f, ok := g.indexByIDs[id]
+	if ok {
+		return f, true
+	}
+	return nil, false
+}
+
+// ForEachRule ...
+func (g *FeatureCollection) ForEachRule(iter func(rule *Rule) bool) bool {
+	if len(g.rules) == 0 {
+		return true
+	}
+	for i := 0; i < len(g.rules); i++ {
+		if ok := iter(g.rules[i]); !ok {
+			return false
+		}
+	}
+	return true
 }
 
 // String ...
@@ -67,6 +93,13 @@ func parseJSONFeatureCollection(
 		f, err = Parse(value.Raw, opts)
 		if err != nil {
 			return false
+		}
+		feature, ok := f.(*Feature)
+		if ok && len(feature.id) > 0 {
+			if g.indexByIDs == nil {
+				g.indexByIDs = make(map[string]Object)
+			}
+			g.indexByIDs[feature.id] = f
 		}
 		g.children = append(g.children, f)
 		return true

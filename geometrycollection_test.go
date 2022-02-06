@@ -18,7 +18,6 @@ func TestGeometryCollectionPoly(t *testing.T) {
 }
 
 func TestGeometryCollectionValid(t *testing.T) {
-	json := `{"type":"GeometryCollection","rules": [{"id": "id", "name": "name", "spec":"spec"}],"geometries":[{"type":"Point","coordinates":[1,200]}]}`
-	expectJSON(t, json, json)
+	json := `{"type":"GeometryCollection","geometries":[{"type":"Point","coordinates":[1,200]}]}`
 	expectJSONOpts(t, json, errCoordinatesInvalid, &ParseOptions{RequireValid: true})
 }
