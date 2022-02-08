@@ -209,12 +209,14 @@ func parseJSONFeature(keys *parseKeys, opts *ParseOptions) (Object, error) {
 		return nil, err
 	}
 	g.rules = rules
+	if g.extra != nil {
+		if gjson.Get(g.extra.members, "id").Exists() {
+			g.id = gjson.Get(g.extra.members, "id").String()
+		}
+	}
 	if point, ok := g.base.(*Point); ok {
 		if g.extra != nil {
 			members := g.extra.members
-			if gjson.Get(members, "id").Exists() {
-				g.id = gjson.Get(members, "id").String()
-			}
 			if !opts.DisableCircleType &&
 				gjson.Get(members, "properties.type").String() == "Circle" {
 				// Circle

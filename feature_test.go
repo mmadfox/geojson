@@ -22,7 +22,7 @@ func TestFeatureParse(t *testing.T) {
 }
 
 func TestFeatureVarious(t *testing.T) {
-	var g = expectJSON(t, `{"type":"Feature","geometry":{"type":"Point","coordinates":[1,2,3]},"properties":{}}`, nil)
+	var g = expectJSON(t, `{"type":"Feature","id": "A", "geometry":{"type":"Point","coordinates":[1,2,3]},"properties":{}}`, nil)
 	expect(t, string(g.AppendJSON(nil)) == `{"type":"Feature","geometry":{"type":"Point","coordinates":[1,2,3]},"properties":{}}`)
 	expect(t, g.Rect() == R(1, 2, 1, 2))
 	expect(t, g.Center() == P(1, 2))
